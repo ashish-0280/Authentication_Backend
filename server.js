@@ -8,36 +8,35 @@ dotenv.config();
 const app = express();
 connectDB();
 
-// ✅ Always define allowed origins without slashes
+// ✅ Define CORS properly — allow deployed frontend & local testing
 const allowedOrigins = [
   'https://codenovasolutions8.netlify.app',
   'http://127.0.0.1:5500'
 ];
 
-// ✅ Setup CORS middleware first
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', origin);
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.header('Access-Control-Allow-Credentials', 'true');
-  }
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+};
 
-  // ✅ Short-circuit preflight requests
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(204);
-  }
+// ✅ Use CORS middleware
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Handle preflight
 
-  next();
-});
-
-// ✅ Body parser
+// ✅ JSON parsing
 app.use(express.json());
 
-// ✅ Routes
+// ✅ API routes
 app.use('/api/auth', authRoutes);
 
-// ✅ Server
+// ✅ Server start
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
