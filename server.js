@@ -10,7 +10,7 @@ const app = express();
 connectDB();
 
 const corsOptions = {
-    origin: 'https://codenovasolutions8.netlify.app',
+    origin: 'https://codenovasolutions8.netlify.app/',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
 };
